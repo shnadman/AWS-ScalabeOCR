@@ -18,10 +18,11 @@ public final class Worker  {
 
 
     public static void  main(String[] args)  {
-        //Tesseract tesseract = new Tesseract();
+        Tesseract tesseract = new Tesseract();
         boolean terminate = false;
+
             System.out.println("Worker Starting");
-            //tesseract.setDatapath("./Tess4J/tessdata");
+            tesseract.setDatapath("/usr/share/tesseract-ocr/4.00/tessdata");
         while (true) {
                 List<Message> messages = SQSMethods.receiveMessages(imagesToProcessQueue,"Extra");
                 for (Message msg : messages) {
@@ -29,12 +30,10 @@ public final class Worker  {
                     try {
                         URL url = new URL(msg.body());
                         BufferedImage image = ImageIO.read(url);
-                        CompletableFuture.delayedExecutor(5, TimeUnit.SECONDS).execute(() -> {
-                        //String text = tesseract.doOCR(image);
-                        SQSMethods.sendMessage(processedImagesQueue, "Danke brudaaa", msg.body());
+                        String text = tesseract.doOCR(image);
+                        SQSMethods.sendMessage(processedImagesQueue, text, msg.body());
                         SQSMethods.deleteMessageAsync(imagesToProcessQueue, msg);
-                        });
-                    } catch (IOException  e) {
+                    } catch (IOException | TesseractException e) {
                         String exceptionDetails = e.getMessage() + '\n' + e.getCause().getMessage();
                         SQSMethods.sendMessage(processedImagesQueue, exceptionDetails, msg.body());
                         SQSMethods.deleteMessageAsync(imagesToProcessQueue, msg);

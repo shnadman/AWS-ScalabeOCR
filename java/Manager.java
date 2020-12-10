@@ -25,7 +25,7 @@ public class Manager {
 
         AtomicInteger taskId= new AtomicInteger(0);
         List<String> activeWorkers = new ArrayList<>();
-        EC2Methods.launchWorkerInstances(2,activeWorkers);
+        //EC2Methods.launchWorkerInstances(2,activeWorkers);
 
         while (!terminate) {
             List<Message> terminateMessages = SQSMethods.receiveMessages(terminateQueue,"Extra");
